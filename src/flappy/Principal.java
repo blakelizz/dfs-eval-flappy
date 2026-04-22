@@ -23,7 +23,6 @@ public class Principal extends Canvas implements KeyListener {
     private Nuage[] nuages = new Nuage[10];
     private ArrayList<Bonus> listeBonus = new ArrayList<>();
 
-
     private boolean pause = false;
     private int score = 0;
     private int iteration = 0;
