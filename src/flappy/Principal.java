@@ -1,15 +1,14 @@
 package flappy;
 
-import flappy.models.Bonus;
-import flappy.models.Nuage;
-import flappy.models.Oiseau;
-import flappy.models.Tuyau;
+import flappy.models.*;
 import flappy.utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class Principal extends Canvas implements KeyListener {
@@ -22,6 +21,13 @@ public class Principal extends Canvas implements KeyListener {
     private Tuyau tuyau;
     private Nuage[] nuages = new Nuage[10];
     private ArrayList<Bonus> listeBonus = new ArrayList<>();
+
+    //projectiles
+    private ArrayList<Projectile> projectiles = new ArrayList<>();
+    private long lastProjectile = 0;
+
+    //Popup Score
+    private ArrayList<PopupScore> popups = new ArrayList<>();
 
     private boolean pause = false;
     private int score = 0;
@@ -37,6 +43,18 @@ public class Principal extends Canvas implements KeyListener {
 
         //addEventListener("click", () => console.log("coucou") )
         fenetre.addKeyListener(this);
+
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                long now = System.currentTimeMillis();
+
+                if(now - lastProjectile > 500){
+                    projectiles.add(new Projectile(oiseau.getX() + oiseau.getLargeur(), oiseau.getY() ));
+                    lastProjectile = now;
+                }
+            }
+        });
 
 
         JPanel panel = new JPanel();
@@ -126,7 +144,14 @@ public class Principal extends Canvas implements KeyListener {
                     bonus.dessiner(dessin);
 
                     if(oiseau.testCollision(bonus)) {
-                        score+=100;
+                        score+=200;
+                        popups.add(new PopupScore(
+                                bonus.getX(),
+                                bonus.getY(),
+                                "+200",
+                                3000
+                        ));
+
                         bonusTouche.add(bonus);
                     }
                 }
@@ -135,6 +160,17 @@ public class Principal extends Canvas implements KeyListener {
                 for(Bonus bonus : bonusTouche) {
                     listeBonus.remove(bonus);
                 }
+
+                //--- Popup Score ----
+                ArrayList<PopupScore> popupsExpired = new ArrayList<>();
+
+                for(PopupScore popup : popups){
+                    popup.dessiner(dessin);
+                    if (popup.isExpired()){
+                        popupsExpired.add(popup);
+                    }
+                }
+                popups.removeAll(popupsExpired);
 
                 //---- oiseau ----
 
@@ -148,6 +184,30 @@ public class Principal extends Canvas implements KeyListener {
 
                 if (tuyau.testCollision(oiseau) || oiseau.getY() > HAUTEUR - 50) {
                     pause = true;
+                }
+
+                //---- Projectile ----
+
+                ArrayList<Projectile> projectileTouche = new ArrayList<>();
+
+                for (Projectile projectile : projectiles) {
+                    projectile.deplacement();
+                    projectile.dessiner(dessin);
+
+                    if (projectile.getX() > LARGEUR){
+                        projectileTouche.add(projectile);
+                    }
+
+                    if (tuyau.testCollision(projectile)){
+                        tuyau.touch();
+                        projectileTouche.add(projectile);
+                    }
+                }
+
+                projectiles.removeAll(projectileTouche);
+
+                if(tuyau.destroyed()){
+                    tuyau = new Tuyau();
                 }
 
                 //---- UI ----
@@ -193,6 +253,12 @@ public class Principal extends Canvas implements KeyListener {
             } else {
                 oiseau.saut();
             }
+        }
+        if(e.getKeyCode() == KeyEvent.VK_D){
+            oiseau.setX(oiseau.getX() + 30);
+        }
+        if (e.getKeyCode() == KeyEvent.VK_Q){
+            oiseau.setX(oiseau.getX() - 30);
         }
     }
 }

@@ -8,6 +8,9 @@ public abstract class Sprite {
     protected int y;
     protected int largeur;
 
+    protected int vitesse;
+    protected Color color;
+
     public abstract void dessiner(Graphics2D dessin);
     public abstract void deplacement();
 
@@ -44,12 +47,22 @@ public abstract class Sprite {
     }
 
     public Zone[] getZones(){
-        return new Zone[]{
-                new Zone(
+        Zone corps = new Zone(
                         new Point(x, y),
                         new Point(x + largeur, y),
                         new Point(x, y + largeur),
-                        new Point(x + largeur, y + largeur))};
+                        new Point(x + largeur, y + largeur));
+
+        int becLargeur = largeur / 3;
+        int becHauteur = largeur / 4;
+
+        Zone bec = new Zone(
+                new Point(x + largeur, y + largeur/2 - becLargeur/2),
+                new Point(x + largeur + becLargeur, y + largeur/2 - becHauteur/2),
+                new Point(x + largeur, y + largeur/2 - becHauteur/2),
+                new Point(x + largeur + becLargeur, y + largeur/2 + becHauteur/2));
+
+        return new Zone[]{corps, bec};
     }
 
 

@@ -10,7 +10,9 @@ public class Oiseau extends Sprite{
     protected float gravite = 1.0f;
 
     public Oiseau() {
+
         largeur = 50;
+        color = Color.YELLOW;
     }
 
     public void deplacement(){
@@ -19,8 +21,16 @@ public class Oiseau extends Sprite{
     }
 
     public void dessiner(Graphics2D dessin){
-        dessin.setColor(Color.red);
+        //corps
+        dessin.setColor(color);
         dessin.fillOval(x,y, largeur, largeur);
+
+        //bec
+        int becLargeur = largeur / 3;
+        int becHauteur = largeur / 4;
+
+        dessin.setColor(Color.ORANGE);
+        dessin.fillRect(x + largeur, y + largeur/2 - becHauteur/2, becLargeur, becHauteur);
     }
 
 
