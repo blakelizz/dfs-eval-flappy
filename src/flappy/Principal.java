@@ -177,6 +177,11 @@ public class Principal extends Canvas implements KeyListener {
                 oiseau.deplacement();
                 oiseau.dessiner(dessin);
 
+                if (oiseau.getX() < 0  || oiseau.getX() +  oiseau.getLargeur() > LARGEUR) {
+                    pause = true;
+                }
+
+
                 //---- tuyau ----
 
                 tuyau.deplacement();
